@@ -1,0 +1,5 @@
+insightface==1.0.1
+onnxruntime
+opencv-python
+numpy
+argon2-cffi
