@@ -13,7 +13,7 @@ class MainWindow:
         self.root = tk.Tk()
 
         self.root.title("Controle de Acesso")
-        self.root.geometry("500x450")
+        self.root.geometry("600x650")
         self.root.resizable(False, False)
 
         self.container = tk.Frame(
@@ -27,6 +27,13 @@ class MainWindow:
             expand=True,
         )
 
+        self.cleanup_tela_atual = None
+
+        self.root.protocol(
+            "WM_DELETE_WINDOW",
+            self.encerrar_aplicacao,
+        )
+
         self.mostrar_menu_principal()
 
     def iniciar(self):
@@ -36,15 +43,24 @@ class MainWindow:
         for widget in self.container.winfo_children():
             widget.destroy()
 
+    def executar_cleanup_se_existir(self):
+        if self.cleanup_tela_atual is not None:
+            self.cleanup_tela_atual()
+            self.cleanup_tela_atual = None
+
     def mostrar_tela(self, funcao_da_tela):
+        self.executar_cleanup_se_existir()
         self.limpar_container()
 
-        funcao_da_tela(
+        cleanup = funcao_da_tela(
             self.container,
             self.mostrar_menu_principal,
         )
 
+        self.cleanup_tela_atual = cleanup
+
     def mostrar_menu_principal(self):
+        self.executar_cleanup_se_existir()
         self.limpar_container()
 
         titulo = tk.Label(
@@ -96,7 +112,7 @@ class MainWindow:
             ),
             (
                 "Sair",
-                self.root.destroy,
+                self.encerrar_aplicacao,
             ),
         ]
 
@@ -112,3 +128,7 @@ class MainWindow:
             botao.pack(
                 pady=5
             )
+
+    def encerrar_aplicacao(self):
+        self.executar_cleanup_se_existir()
+        self.root.destroy()

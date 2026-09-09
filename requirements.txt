@@ -1,5 +1,6 @@
 insightface==1.0.1
-onnxruntime
-opencv-python
-numpy
-argon2-cffi
+onnxruntime==1.29.0
+opencv-python==5.0.0
+numpy==2.5.2
+argon2-cffi==25.1.0
+Pillow==12.3.0
