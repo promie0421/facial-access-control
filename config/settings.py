@@ -14,3 +14,8 @@ DURACAO_RESULTADO_SEGUNDOS = 3
 
 # tempo de cooldown apos mostrar um resultado, antes de aceitar nova tentativa
 DURACAO_COOLDOWN_SEGUNDOS = 3
+
+# intervalo minimo entre execucoes do reconhecimento facial na tela de teste
+# (video continua atualizando mais rapido, so o reconhecimento respeita esse intervalo)
+# valor provisorio, sera ajustado apos testes reais
+INTERVALO_RECONHECIMENTO_MS = 250
