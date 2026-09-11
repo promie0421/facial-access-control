@@ -4,6 +4,7 @@ from ui.registration_screen import criar_tela as criar_tela_cadastro
 from ui.users_screen import criar_tela as criar_tela_usuarios
 from ui.camera_view_screen import criar_tela as criar_tela_camera
 from ui.recognition_test_screen import criar_tela as criar_tela_reconhecimento
+from ui.pin_auth_screen import criar_tela as criar_tela_pin
 from ui.logs_screen import criar_tela as criar_tela_logs
 from ui.settings_screen import criar_tela as criar_tela_configuracoes
 
@@ -11,7 +12,6 @@ from ui.settings_screen import criar_tela as criar_tela_configuracoes
 class MainWindow:
     def __init__(self):
         self.root = tk.Tk()
-
         self.root.title("Controle de Acesso")
         self.root.geometry("600x650")
         self.root.resizable(False, False)
@@ -21,12 +21,12 @@ class MainWindow:
             padx=20,
             pady=20,
         )
-
         self.container.pack(
             fill="both",
             expand=True,
         )
 
+        # guarda a funcao de limpeza da tela atual
         self.cleanup_tela_atual = None
 
         self.root.protocol(
@@ -68,10 +68,7 @@ class MainWindow:
             text="CONTROLE DE ACESSO",
             font=("Arial", 18, "bold"),
         )
-
-        titulo.pack(
-            pady=(0, 20)
-        )
+        titulo.pack(pady=(0, 20))
 
         botoes = [
             (
@@ -96,6 +93,12 @@ class MainWindow:
                 "Testar reconhecimento",
                 lambda: self.mostrar_tela(
                     criar_tela_reconhecimento
+                ),
+            ),
+            (
+                "Autenticar com PIN",
+                lambda: self.mostrar_tela(
+                    criar_tela_pin
                 ),
             ),
             (
@@ -124,10 +127,7 @@ class MainWindow:
                 height=2,
                 command=comando,
             )
-
-            botao.pack(
-                pady=5
-            )
+            botao.pack(pady=5)
 
     def encerrar_aplicacao(self):
         self.executar_cleanup_se_existir()

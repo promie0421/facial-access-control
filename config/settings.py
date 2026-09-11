@@ -16,6 +16,17 @@ DURACAO_RESULTADO_SEGUNDOS = 3
 DURACAO_COOLDOWN_SEGUNDOS = 3
 
 # intervalo minimo entre execucoes do reconhecimento facial na tela de teste
-# (video continua atualizando mais rapido, so o reconhecimento respeita esse intervalo)
 # valor provisorio, sera ajustado apos testes reais
 INTERVALO_RECONHECIMENTO_MS = 250
+
+# quantidade exata de digitos do PIN
+PIN_TAMANHO = 6
+
+# quantas tentativas invalidas de PIN sao permitidas antes do bloqueio temporario
+PIN_MAX_TENTATIVAS = 3
+
+# por quantos segundos o usuario fica bloqueado apos exceder as tentativas de PIN
+PIN_BLOQUEIO_SEGUNDOS = 60
+
+# quantos registros de log sao exibidos por padrao na tela de logs
+LOGS_LIMITE_EXIBICAO = 50
