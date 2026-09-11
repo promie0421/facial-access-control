@@ -428,5 +428,26 @@ O desenvolvimento está sendo feito de forma incremental: cada parte é implemen
 
 A primeira fase do projeto está ligada ao \*\*Jovens Cientistas Cariocas\*\*, mas o encerramento dessa atividade não representa o encerramento deste projeto. A intenção é continuar seu desenvolvimento posteriormente, expandindo tanto o software quanto a parte física do sistema.
 
+## Limitações de segurança conhecidas
+
+A versão atual do sistema realiza reconhecimento facial, mas ainda não possui um mecanismo completo de detecção de vivacidade (liveness detection).
+
+Durante os testes, foi identificado que uma fotografia de uma pessoa cadastrada exibida na tela de um celular pode ser reconhecida pelo sistema. Isso ocorre porque o reconhecimento facial atual verifica a similaridade entre o rosto apresentado à câmera e os dados biométricos cadastrados, mas ainda não confirma se o rosto pertence a uma pessoa fisicamente presente diante da câmera.
+
+Essa limitação é conhecida e está sendo tratada na próxima etapa do desenvolvimento.
+
+### Próxima etapa: Anti-Spoofing
+
+O projeto deverá adicionar uma camada de liveness/anti-spoofing separada do reconhecimento de identidade. Entre os testes e mecanismos planejados estão:
+
+- detecção de sinais de presença real ao longo de vários frames;
+- desafios aleatórios de interação;
+- análise de movimentos e características faciais;
+- testes contra fotografias exibidas em celulares;
+- testes contra vídeos previamente gravados.
+
+A autorização de acesso deverá ocorrer somente quando a identidade facial e a verificação de vivacidade forem aprovadas.
+
+Por enquanto, esta versão deve ser considerada um protótipo experimental e não deve ser utilizada como único mecanismo de segurança para controle de acesso físico.
 
 
