@@ -45,3 +45,26 @@ def verificar_conexao_cloud():
             "online": False,
             "status_code": None,
         }
+
+
+def registrar_terminal_cloud():
+    # envia a identidade deste terminal para a Cloud
+    url = f"{CLOUD_API_URL}/terminals/register"
+    dados = obter_identidade_terminal()
+
+    try:
+        resposta = requests.post(url, json=dados, timeout=5)
+
+        if resposta.ok:
+            return resposta.json()
+
+        return {
+            "status": "error",
+            "status_code": resposta.status_code,
+        }
+
+    except requests.RequestException:
+        return {
+            "status": "offline",
+            "status_code": None,
+        }
