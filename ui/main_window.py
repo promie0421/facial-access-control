@@ -1,5 +1,7 @@
 import tkinter as tk
 
+from modules.database import registrar_log_terminal
+
 from ui.registration_screen import criar_tela as criar_tela_cadastro
 from ui.users_screen import criar_tela as criar_tela_usuarios
 from ui.camera_view_screen import criar_tela as criar_tela_camera
@@ -26,7 +28,7 @@ class MainWindow:
             expand=True,
         )
 
-        # guarda a funcao de limpeza da tela atual
+        # Guarda a funcao de limpeza da tela atual.
         self.cleanup_tela_atual = None
 
         self.root.protocol(
@@ -78,13 +80,13 @@ class MainWindow:
                 ),
             ),
             (
-                "Usuários cadastrados",
+                "Usuarios cadastrados",
                 lambda: self.mostrar_tela(
                     criar_tela_usuarios
                 ),
             ),
             (
-                "Visualizar câmera",
+                "Visualizar camera",
                 lambda: self.mostrar_tela(
                     criar_tela_camera
                 ),
@@ -108,7 +110,7 @@ class MainWindow:
                 ),
             ),
             (
-                "Configurações",
+                "Configuracoes",
                 lambda: self.mostrar_tela(
                     criar_tela_configuracoes
                 ),
@@ -131,4 +133,11 @@ class MainWindow:
 
     def encerrar_aplicacao(self):
         self.executar_cleanup_se_existir()
+
+        registrar_log_terminal(
+            "INFO",
+            "TERMINAL_STOP",
+            "Lancaster Access Terminal encerrado normalmente",
+        )
+
         self.root.destroy()

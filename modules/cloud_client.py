@@ -10,6 +10,8 @@ from config.settings import (
     CLOUD_API_URL,
 )
 
+from modules.database import registrar_log_terminal
+
 
 def obter_identidade_terminal():
     # monta os dados que identificam este terminal para o servidor
@@ -35,12 +37,31 @@ def verificar_conexao_cloud():
     try:
         resposta = requests.get(url, timeout=3)
 
+        if resposta.ok:
+            registrar_log_terminal(
+                "INFO",
+                "CLOUD_ONLINE",
+                f"Cloud acessivel. HTTP {resposta.status_code}",
+            )
+        else:
+            registrar_log_terminal(
+                "WARNING",
+                "CLOUD_ERROR",
+                f"Cloud respondeu com HTTP {resposta.status_code}",
+            )
+
         return {
             "online": resposta.ok,
             "status_code": resposta.status_code,
         }
 
-    except requests.RequestException:
+    except requests.RequestException as erro:
+        registrar_log_terminal(
+            "WARNING",
+            "CLOUD_OFFLINE",
+            f"Nao foi possivel conectar com a Cloud: {erro}",
+        )
+
         return {
             "online": False,
             "status_code": None,
@@ -53,17 +74,39 @@ def registrar_terminal_cloud():
     dados = obter_identidade_terminal()
 
     try:
-        resposta = requests.post(url, json=dados, timeout=5)
+        resposta = requests.post(
+            url,
+            json=dados,
+            timeout=5,
+        )
 
         if resposta.ok:
+            registrar_log_terminal(
+                "INFO",
+                "CLOUD_TERMINAL_REGISTERED",
+                f"Terminal {TERMINAL_ID} registrado na Cloud",
+            )
+
             return resposta.json()
+
+        registrar_log_terminal(
+            "WARNING",
+            "CLOUD_TERMINAL_REGISTER_ERROR",
+            f"Falha ao registrar terminal. HTTP {resposta.status_code}",
+        )
 
         return {
             "status": "error",
             "status_code": resposta.status_code,
         }
 
-    except requests.RequestException:
+    except requests.RequestException as erro:
+        registrar_log_terminal(
+            "WARNING",
+            "CLOUD_OFFLINE",
+            f"Nao foi possivel registrar o terminal na Cloud: {erro}",
+        )
+
         return {
             "status": "offline",
             "status_code": None,
