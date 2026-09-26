@@ -1,3 +1,5 @@
+import requests
+
 from config.settings import (
     PRODUCT_NAME,
     PRODUCT_VERSION,
@@ -10,7 +12,7 @@ from config.settings import (
 
 
 def obter_identidade_terminal():
-    # monta os dados que identificam este terminal para o futuro servidor
+    # monta os dados que identificam este terminal para o servidor
     return {
         "product": PRODUCT_NAME,
         "version": PRODUCT_VERSION,
@@ -24,3 +26,22 @@ def obter_identidade_terminal():
 def obter_cloud_api_url():
     # retorna o endereco configurado para a API Lancaster Access Cloud
     return CLOUD_API_URL
+
+
+def verificar_conexao_cloud():
+    # verifica se a API esta acessivel sem interromper o funcionamento local
+    url = f"{CLOUD_API_URL}/health"
+
+    try:
+        resposta = requests.get(url, timeout=3)
+
+        return {
+            "online": resposta.ok,
+            "status_code": resposta.status_code,
+        }
+
+    except requests.RequestException:
+        return {
+            "online": False,
+            "status_code": None,
+        }
