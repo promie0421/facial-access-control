@@ -6,6 +6,11 @@ database/*.db
 database/*.db-shm
 database/*.db-wal
 
+# Banco de dados da Cloud
+cloud/*.db
+cloud/*.db-shm
+cloud/*.db-wal
+
 # Cache do Python
 __pycache__/
 *.py[cod]
@@ -18,7 +23,7 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Variáveis de ambiente
+# Variaveis de ambiente
 .env
 .env.*
 
