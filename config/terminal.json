@@ -2,5 +2,6 @@
     "company_id": "EMP-001",
     "company_name": "Empresa de Teste",
     "terminal_id": "LAT-001",
-    "terminal_name": "Terminal Principal"
+    "terminal_name": "Terminal Principal",
+    "cloud_api_url": "http://localhost:8000"
 }

@@ -11,7 +11,7 @@ PRODUCT_VERSION = "1.0.0"
 
 
 def carregar_configuracao_terminal():
-    # carrega a identificacao desta instalacao
+    # carrega a identificacao e configuracao desta instalacao
     with open(TERMINAL_CONFIG_PATH, "r", encoding="utf-8") as arquivo:
         return json.load(arquivo)
 
@@ -22,6 +22,7 @@ COMPANY_ID = TERMINAL_CONFIG["company_id"]
 COMPANY_NAME = TERMINAL_CONFIG["company_name"]
 TERMINAL_ID = TERMINAL_CONFIG["terminal_id"]
 TERMINAL_NAME = TERMINAL_CONFIG["terminal_name"]
+CLOUD_API_URL = TERMINAL_CONFIG["cloud_api_url"]
 
 # threshold provisorio, sera calibrado com testes reais na Etapa 16
 RECOGNITION_THRESHOLD = 0.50
