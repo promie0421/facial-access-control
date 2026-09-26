@@ -1,7 +1,27 @@
+import json
 import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATABASE_PATH = os.path.join(BASE_DIR, "database", "access_control.db")
+TERMINAL_CONFIG_PATH = os.path.join(BASE_DIR, "config", "terminal.json")
+
+# informacoes do produto
+PRODUCT_NAME = "Lancaster Access Terminal"
+PRODUCT_VERSION = "1.0.0"
+
+
+def carregar_configuracao_terminal():
+    # carrega a identificacao desta instalacao
+    with open(TERMINAL_CONFIG_PATH, "r", encoding="utf-8") as arquivo:
+        return json.load(arquivo)
+
+
+TERMINAL_CONFIG = carregar_configuracao_terminal()
+
+COMPANY_ID = TERMINAL_CONFIG["company_id"]
+COMPANY_NAME = TERMINAL_CONFIG["company_name"]
+TERMINAL_ID = TERMINAL_CONFIG["terminal_id"]
+TERMINAL_NAME = TERMINAL_CONFIG["terminal_name"]
 
 # threshold provisorio, sera calibrado com testes reais na Etapa 16
 RECOGNITION_THRESHOLD = 0.50
