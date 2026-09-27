@@ -1,6 +1,18 @@
+import os
+import sys
+
 from insightface.app import FaceAnalysis
 
+
 _face_app = None
+
+
+def obter_diretorio_modelos():
+    """Define onde o InsightFace deve procurar os modelos."""
+    if getattr(sys, "frozen", False):
+        return os.path.join(os.path.dirname(sys.executable), "models")
+
+    return os.path.join(os.path.expanduser("~"), ".insightface")
 
 
 def carregar_modelo():
@@ -12,6 +24,7 @@ def carregar_modelo():
 
         _face_app = FaceAnalysis(
             name="buffalo_l",
+            root=obter_diretorio_modelos(),
             providers=["CPUExecutionProvider"],
             allowed_modules=["detection", "recognition"]
         )
