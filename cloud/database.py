@@ -276,3 +276,39 @@ def buscar_empresa(company_id):
     conexao.close()
 
     return empresa
+
+def buscar_terminal(terminal_id):
+    """Busca um terminal pelo terminal_id."""
+    conexao = conectar()
+    cursor = conexao.cursor()
+
+    if DATABASE_ENGINE == "sqlite":
+        placeholder = "?"
+    elif DATABASE_ENGINE == "postgres":
+        placeholder = "%s"
+    else:
+        conexao.close()
+        raise ValueError(
+            f"Mecanismo de banco nao suportado: {DATABASE_ENGINE}"
+        )
+
+    cursor.execute(
+        f"""
+        SELECT
+            terminal_id,
+            company_id,
+            terminal_name,
+            product,
+            version,
+            created_at,
+            updated_at
+        FROM terminals
+        WHERE terminal_id = {placeholder}
+        """,
+        (terminal_id,),
+    )
+
+    terminal = cursor.fetchone()
+    conexao.close()
+
+    return terminal
