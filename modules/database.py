@@ -1,5 +1,6 @@
 import sqlite3
 import os
+import uuid
 
 from config.settings import DATABASE_PATH
 
@@ -57,6 +58,30 @@ def init_database():
             FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE SET NULL
         )
     """)
+
+    # Migra access_logs existentes para suportar sincronizacao com a Cloud.
+    colunas_access_logs = {
+        linha["name"]
+        for linha in cursor.execute(
+            "PRAGMA table_info(access_logs)"
+        ).fetchall()
+    }
+
+    if "event_id" not in colunas_access_logs:
+        cursor.execute(
+            "ALTER TABLE access_logs ADD COLUMN event_id TEXT"
+        )
+
+    if "synced" not in colunas_access_logs:
+        cursor.execute(
+            "ALTER TABLE access_logs "
+            "ADD COLUMN synced INTEGER NOT NULL DEFAULT 0"
+        )
+
+    if "synced_at" not in colunas_access_logs:
+        cursor.execute(
+            "ALTER TABLE access_logs ADD COLUMN synced_at TEXT"
+        )
 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS terminal_logs (
@@ -341,26 +366,33 @@ def registrar_log(user_id, method, result, reason=None):
     conexao = get_connection()
     cursor = conexao.cursor()
 
+    event_id = str(uuid.uuid4())
+
     cursor.execute(
         """
         INSERT INTO access_logs (
             user_id,
             method,
             result,
-            reason
+            reason,
+            event_id,
+            synced
         )
-        VALUES (?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, 0)
         """,
         (
             user_id,
             method,
             result,
             reason,
+            event_id,
         )
     )
 
     conexao.commit()
     conexao.close()
+
+    return event_id
 
 
 def listar_logs(limite):
@@ -455,3 +487,59 @@ def listar_tabelas():
     conexao.close()
 
     return tabelas
+
+
+def listar_logs_pendentes_sync(limite=100):
+    """Retorna logs de acesso ainda nao confirmados pela Cloud."""
+    conexao = get_connection()
+    cursor = conexao.cursor()
+
+    cursor.execute(
+        """
+        SELECT
+            access_logs.id,
+            access_logs.event_id,
+            users.public_id AS user_public_id,
+            access_logs.method,
+            access_logs.result,
+            access_logs.reason,
+            access_logs.timestamp AS event_timestamp
+        FROM access_logs
+        LEFT JOIN users ON users.id = access_logs.user_id
+        WHERE access_logs.synced = 0
+        AND access_logs.event_id IS NOT NULL
+        ORDER BY access_logs.id
+        LIMIT ?
+        """,
+        (limite,)
+    )
+
+    linhas = cursor.fetchall()
+    conexao.close()
+
+    return linhas
+
+
+def marcar_log_como_sincronizado(event_id):
+    """Marca um evento como confirmado pela Cloud."""
+    conexao = get_connection()
+    cursor = conexao.cursor()
+
+    cursor.execute(
+        """
+        UPDATE access_logs
+        SET
+            synced = 1,
+            synced_at = datetime('now')
+        WHERE event_id = ?
+        AND synced = 0
+        """,
+        (event_id,)
+    )
+
+    atualizado = cursor.rowcount > 0
+
+    conexao.commit()
+    conexao.close()
+
+    return atualizado
