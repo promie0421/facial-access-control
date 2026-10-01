@@ -1,3 +1,6 @@
+import threading
+import time
+
 import requests
 
 from config.settings import (
@@ -14,6 +17,10 @@ from modules.database import (
 
 
 SYNC_TIMEOUT_SECONDS = 5
+SYNC_INTERVAL_SECONDS = 30
+
+_sync_thread = None
+_sync_stop_event = threading.Event()
 
 
 def sincronizar_logs(limite=100):
@@ -124,3 +131,83 @@ def sincronizar_logs(limite=100):
             resultado["falhas"] += 1
 
     return resultado
+
+
+def _loop_sincronizacao():
+    """
+    Executa a sincronizacao periodicamente em segundo plano.
+
+    A primeira tentativa acontece imediatamente. Depois disso,
+    o worker aguarda SYNC_INTERVAL_SECONDS antes da proxima tentativa.
+    """
+    registrar_log_terminal(
+        "INFO",
+        "CLOUD_SYNC_WORKER_STARTED",
+        (
+            "Worker de sincronizacao com a Cloud iniciado. "
+            f"Intervalo: {SYNC_INTERVAL_SECONDS} segundos"
+        ),
+    )
+
+    while not _sync_stop_event.is_set():
+        try:
+            resultado = sincronizar_logs()
+
+            if resultado["sincronizados"] > 0:
+                registrar_log_terminal(
+                    "INFO",
+                    "CLOUD_SYNC_SUCCESS",
+                    (
+                        f"{resultado['sincronizados']} evento(s) "
+                        "sincronizado(s) com a Cloud"
+                    ),
+                )
+
+        except Exception as erro:
+            registrar_log_terminal(
+                "ERROR",
+                "CLOUD_SYNC_WORKER_ERROR",
+                f"Erro inesperado no worker de sincronizacao: {erro}",
+            )
+
+        _sync_stop_event.wait(SYNC_INTERVAL_SECONDS)
+
+    registrar_log_terminal(
+        "INFO",
+        "CLOUD_SYNC_WORKER_STOPPED",
+        "Worker de sincronizacao com a Cloud encerrado",
+    )
+
+
+def iniciar_sincronizacao_automatica():
+    """
+    Inicia o worker de sincronizacao em uma daemon thread.
+
+    Se o worker ja estiver em execucao, nenhuma segunda thread
+    sera criada.
+    """
+    global _sync_thread
+
+    if _sync_thread is not None and _sync_thread.is_alive():
+        return False
+
+    _sync_stop_event.clear()
+
+    _sync_thread = threading.Thread(
+        target=_loop_sincronizacao,
+        name="LancasterCloudSync",
+        daemon=True,
+    )
+
+    _sync_thread.start()
+
+    return True
+
+
+def parar_sincronizacao_automatica():
+    """
+    Solicita o encerramento do worker de sincronizacao.
+
+    A chamada nao bloqueia a interface esperando a thread terminar.
+    """
+    _sync_stop_event.set()
